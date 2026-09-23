@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri-Gardening Tool Sort - Grade 7 Edition</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        earth: {
+                            100: '#fef3c7',
+                            300: '#fcd34d',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                        },
+                        power: {
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        .font-heading {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .drop-zone {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .drop-zone.drag-over {
+            transform: scale(1.02);
+            filter: brightness(1.08);
+            border-style: solid;
+        }
+
+        .tool-card {
+            touch-action: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: grab;
+        }
+
+        .tool-card:active {
+            cursor: grabbing;
+        }
+
+        .tool-card.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        @keyframes gentle-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .animate-bounce-gentle {
+            animation: gentle-bounce 2s infinite;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #16a34a;
+            border-radius: 10px;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-certificate, #printable-certificate * {
+                visibility: visible;
+            }
+            #printable-certificate {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+    <header class="bg-brand-800/90 backdrop-blur-md text-white py-3 px-4 sm:px-6 sticky top-0 z-40 shadow-md border-b-4 border-brand-900">
+        <div class="max-w-6xl lg:max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-amber-400 border-2 border-amber-200 flex items-center justify-center text-brand-900 text-xl shadow">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-bold text-lg sm:text-2xl tracking-wide text-amber-300 drop-shadow-sm">AGRI-SORT 7</h1>
+                    <p class="text-xs text-brand-200 font-semibold hidden sm:block">Agriculture & Gardening Tools Classification Game</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button id="sound-toggle" onclick="toggleSound()" class="bg-brand-700 hover:bg-brand-600 text-amber-200 p-2.5 rounded-xl border border-brand-500 transition shadow flex items-center justify-center" title="Toggle Audio">
+                    <i id="sound-icon" class="fa-solid fa-volume-high text-lg"></i>
+                </button>
+                <span class="bg-amber-500/20 text-amber-200 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-400/30">
+                    Grade 7 TLE
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow flex items-center justify-center p-3 sm:p-6 lg:p-8">
+        <div class="w-full max-w-6xl lg:max-w-7xl mx-auto">
+
+            <section id="screen-landing" class="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border-4 border-brand-600/30 overflow-hidden transition-all duration-300">
+                <div class="bg-gradient-to-r from-brand-700 via-brand-600 to-emerald-700 p-6 sm:p-8 text-white relative overflow-hidden">
+                    <div class="absolute -right-10 -bottom-10 opacity-15 text-white text-9xl">
+                        <i class="fa-solid fa-wheat-awn font-thin"></i>
+                    </div>
+                    <div class="relative z-10 max-w-2xl">
+                        <span class="inline-block bg-amber-400 text-brand-900 font-extrabold text-xs uppercase px-3 py-1 rounded-full mb-3 shadow">Grade 7 TLE Activity</span>
+                        <h2 class="font-heading text-3xl sm:text-5xl font-extrabold text-amber-200 leading-tight mb-2">
+                            Tool Master: Hand vs. Power Tools
+                        </h2>
+                        <p class="text-brand-100 text-sm sm:text-base font-semibold">
+                            Welcome, Young Farmer! Practice classifying 15 essential agricultural tools. Earn 1 point for every correct answer!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <!-- Student Profile Form -->
+                    <div class="md:col-span-6 bg-brand-50/70 p-6 rounded-2xl border-2 border-brand-200 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center space-x-2 mb-4">
+                                <i class="fa-solid fa-id-card text-brand-600 text-xl"></i>
+                                <h3 class="font-heading text-xl font-bold text-brand-900">Student Profile</h3>
+                            </div>
+                            <p class="text-xs text-slate-600 mb-5">Please enter your details to record your score and certificate badge on your final scorecard.</p>
+
+                            <form id="student-form" onsubmit="startGame(event)" class="space-y-4">
+                                <div>
+                                    <label for="student-name" class="block text-xs font-bold text-brand-800 uppercase tracking-wider mb-1">
+                                        Full Name <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-brand-600">
+                                            <i class="fa-solid fa-user"></i>
+                                        </div>
+                                        <input type="text" id="student-name" required placeholder="e.g. Juan Cruz" 
+                                            class="w-full pl-10 pr-4 py-3 bg-white border-2 border-brand-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-semibold text-slate-800 placeholder-slate-400 transition">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="student-grade" class="block text-xs font-bold text-brand-800 uppercase tracking-wider mb-1">
+                                            Grade Level <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-brand-600">
+                                                <i class="fa-solid fa-graduation-cap"></i>
+                                            </div>
+                                            <input type="text" id="student-grade" value="Grade 7" readonly required 
+                                                class="w-full pl-10 pr-3 py-3 bg-slate-100 border-2 border-brand-300 rounded-xl font-bold text-slate-700 cursor-not-allowed">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="student-section" class="block text-xs font-bold text-brand-800 uppercase tracking-wider mb-1">
+                                            Section <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-brand-600">
+                                                <i class="fa-solid fa-users"></i>
+                                            </div>
+                                            <input type="text" id="student-section" required placeholder="e.g. A" 
+                                                class="w-full pl-10 pr-3 py-3 bg-white border-2 border-brand-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-semibold text-slate-800 placeholder-slate-400 transition">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="form-error" class="hidden p-3 bg-red-100 border border-red-300 rounded-xl text-red-700 text-xs font-bold flex items-center space-x-2">
+                                    <i class="fa-solid fa-circle-exclamation text-base"></i>
+                                    <span>Please complete all required fields!</span>
+                                </div>
+
+                                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-brand-600 to-emerald-600 hover:from-brand-700 hover:to-emerald-700 text-white font-heading font-bold text-lg py-3.5 px-6 rounded-xl shadow-lg hover:shadow-xl transform active:scale-95 transition flex items-center justify-center space-x-2">
+                                    <span>START GAME!</span>
+                                    <i class="fa-solid fa-circle-play text-xl"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-6 flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex items-center space-x-2 mb-4">
+                                <i class="fa-solid fa-book-open-reader text-amber-700 text-xl"></i>
+                                <h3 class="font-heading text-xl font-bold text-slate-800">How to Play</h3>
+                            </div>
+
+                            <ul class="space-y-3.5 text-sm">
+                                <li class="flex items-start space-x-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0 mt-0.5 text-xs">1</span>
+                                    <div>
+                                        <strong class="text-slate-900 block font-bold">Examine the Tool Photo:</strong>
+                                        <span class="text-slate-600">Look closely at the photo and function of each tool.</span>
+                                    </div>
+                                </li>
+                                <li class="flex items-start space-x-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0 mt-0.5 text-xs">2</span>
+                                    <div>
+                                        <strong class="text-slate-900 block font-bold">Classify Correctly:</strong>
+                                        <span class="text-slate-600"><strong class="text-emerald-700">Hand Tools</strong> use human force. <strong class="text-orange-600">Power Tools</strong> use engines or motors.</span>
+                                    </div>
+                                </li>
+                                <li class="flex items-start space-x-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center shrink-0 mt-0.5 text-xs">3</span>
+                                    <div>
+                                        <strong class="text-slate-900 block font-bold">Scoring System:</strong>
+                                        <span class="text-slate-600">Gain <strong class="text-emerald-700">+1 point</strong> for every correct placement up to <strong>15 points</strong>!</span>
+                                    </div>
+                                </li>
+                                <li class="flex items-start space-x-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                    <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-800 font-bold flex items-center justify-center shrink-0 mt-0.5 text-xs">4</span>
+                                    <div class="w-full">
+                                        <strong class="text-slate-900 block font-bold mb-1">Earn Your Achievement Badge:</strong>
+                                        <span class="text-slate-600 text-xs block mb-2">Your badge is awarded on the scorecard based on your final score:</span>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                            <div class="flex items-center space-x-2.5 bg-amber-50 border border-amber-300 p-2 rounded-xl">
+                                                <div class="w-8 h-8 rounded-lg bg-amber-400 text-amber-900 flex items-center justify-center shrink-0 shadow-sm">
+                                                    <i class="fa-solid fa-crown text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <strong class="text-amber-950 block font-bold leading-tight">Master Agri-Gardener</strong>
+                                                    <span class="text-[10px] text-amber-800 font-bold">14 - 15 pts (90% - 100%)</span>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center space-x-2.5 bg-emerald-50 border border-emerald-300 p-2 rounded-xl">
+                                                <div class="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                                    <i class="fa-solid fa-medal text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <strong class="text-emerald-950 block font-bold leading-tight">Junior Agri-Expert</strong>
+                                                    <span class="text-[10px] text-emerald-800 font-bold">12 - 13 pts (75% - 89%)</span>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center space-x-2.5 bg-blue-50 border border-blue-300 p-2 rounded-xl">
+                                                <div class="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                                    <i class="fa-solid fa-seedling text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <strong class="text-blue-950 block font-bold leading-tight">Garden Helper</strong>
+                                                    <span class="text-[10px] text-blue-800 font-bold">8 - 11 pts (50% - 74%)</span>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center space-x-2.5 bg-slate-100 border border-slate-300 p-2 rounded-xl">
+                                                <div class="w-8 h-8 rounded-lg bg-slate-400 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                                    <i class="fa-solid fa-book-open text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <strong class="text-slate-900 block font-bold leading-tight">Gardening Apprentice</strong>
+                                                    <span class="text-[10px] text-slate-700 font-bold">0 - 7 pts (0% - 49%)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-amber-50 border-l-4 border-amber-500 p-3.5 rounded-r-xl text-xs text-amber-900">
+                            <span class="font-bold flex items-center gap-1.5 mb-1"><i class="fa-solid fa-lightbulb text-amber-600"></i> Agri-Fact:</span>
+                            Knowing whether a tool uses human effort or engine motor power helps farmers choose the right equipment for field preparation.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="screen-game" class="hidden flex flex-col space-y-4">
+                <div class="bg-white/95 backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-xl border-2 border-brand-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3 w-full md:w-auto">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-100 text-brand-800 flex items-center justify-center font-bold text-lg sm:text-xl">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <div>
+                            <span id="game-display-name" class="font-heading font-bold text-slate-800 text-base sm:text-lg lg:text-xl block leading-tight">Student Name</span>
+                            <span id="game-display-class" class="text-xs sm:text-sm font-semibold text-brand-700 bg-brand-100/80 px-2.5 py-0.5 rounded-md inline-block mt-0.5">Grade 7 - Section</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 w-full md:max-w-md lg:max-w-lg mx-0 md:mx-2">
+                        <div class="flex justify-between items-center text-xs sm:text-sm font-bold text-slate-600 mb-1">
+                            <span>PROGRESS</span>
+                            <span id="progress-text">Tool 1 of 15</span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-300">
+                            <div id="progress-bar" class="bg-gradient-to-r from-brand-500 to-emerald-500 h-full rounded-full transition-all duration-300" style="width: 6.66%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+                        <div class="bg-amber-100 border border-amber-300 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-center min-w-[85px] sm:min-w-[100px]">
+                            <span class="block text-[10px] sm:text-xs font-extrabold text-amber-800 uppercase tracking-wider">SCORE</span>
+                            <span id="score-display" class="font-heading font-extrabold text-lg sm:text-xl text-amber-900 leading-none">0 / 15</span>
+                        </div>
+                        <div class="bg-emerald-100 border border-emerald-300 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl text-center min-w-[75px] sm:min-w-[90px]">
+                            <span class="block text-[10px] sm:text-xs font-extrabold text-emerald-800 uppercase tracking-wider">STREAK</span>
+                            <span id="streak-display" class="font-heading font-extrabold text-lg sm:text-xl text-emerald-900 leading-none">0 🔥</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6 items-stretch min-h-[460px] lg:min-h-[520px]">
+                    <!-- HAND TOOLS DROP ZONE -->
+                    <div id="zone-hand" 
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDrop(event, 'hand')"
+                         class="drop-zone md:col-span-4 bg-gradient-to-b from-emerald-50 to-green-100 border-4 border-dashed border-emerald-400 rounded-3xl p-4 sm:p-5 lg:p-6 flex flex-col justify-between items-center text-center shadow-lg relative overflow-hidden group">
+                        
+                        <div class="w-full">
+                            <div class="inline-flex items-center justify-center space-x-2 bg-emerald-600 text-white font-heading font-bold px-3 sm:px-4 py-2 rounded-2xl shadow mb-2 sm:mb-3 text-base sm:text-lg lg:text-xl w-full">
+                                <i class="fa-solid fa-hand text-amber-300"></i>
+                                <span>HAND TOOLS</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-emerald-800 font-semibold mb-2 sm:mb-4 bg-emerald-200/60 py-1.5 px-3 rounded-lg">
+                                Powered by human muscle effort & force.
+                            </p>
+                        </div>
+
+                        <div class="my-auto py-4 sm:py-6 flex flex-col items-center justify-center space-y-2 sm:space-y-3 opacity-80 group-hover:opacity-100 transition">
+                            <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-emerald-200/80 border-4 border-emerald-300 flex items-center justify-center text-emerald-700 text-4xl sm:text-5xl lg:text-6xl shadow-inner">
+                                <i class="fa-solid fa-hand"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm font-bold text-emerald-800 bg-white/80 px-3 sm:px-4 py-1.5 rounded-full shadow-sm border border-emerald-200">
+                                Drop Hand Tools Here
+                            </span>
+                        </div>
+
+                        <button onclick="submitCategoryChoice('hand')" class="w-full mt-3 sm:mt-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-heading font-bold py-2.5 sm:py-3 px-4 rounded-xl shadow transition flex items-center justify-center space-x-2 text-sm sm:text-base">
+                            <i class="fa-solid fa-arrow-down-long"></i>
+                            <span>SORT AS HAND TOOL</span>
+                        </button>
+                    </div>
+
+                    <!-- CARD CONTAINER -->
+                    <div class="md:col-span-4 flex flex-col items-center justify-center p-1 sm:p-2">
+                        <div id="card-container" class="w-full max-w-sm lg:max-w-md">
+                            <!-- Tool Card Rendered via JS -->
+                        </div>
+                    </div>
+
+                    <!-- POWER TOOLS DROP ZONE -->
+                    <div id="zone-power" 
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)" 
+                         ondrop="handleDrop(event, 'power')"
+                         class="drop-zone md:col-span-4 bg-gradient-to-b from-orange-50 to-amber-100 border-4 border-dashed border-orange-400 rounded-3xl p-4 sm:p-5 lg:p-6 flex flex-col justify-between items-center text-center shadow-lg relative overflow-hidden group">
+                        
+                        <div class="w-full">
+                            <div class="inline-flex items-center justify-center space-x-2 bg-orange-600 text-white font-heading font-bold px-3 sm:px-4 py-2 rounded-2xl shadow mb-2 sm:mb-3 text-base sm:text-lg lg:text-xl w-full">
+                                <i class="fa-solid fa-bolt text-yellow-300"></i>
+                                <span>POWER TOOLS</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-orange-800 font-semibold mb-2 sm:mb-4 bg-orange-200/60 py-1.5 px-3 rounded-lg">
+                                Driven by engines, electric motors, or fuel.
+                            </p>
+                        </div>
+
+                        <div class="my-auto py-4 sm:py-6 flex flex-col items-center justify-center space-y-2 sm:space-y-3 opacity-80 group-hover:opacity-100 transition">
+                            <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full bg-orange-200/80 border-4 border-orange-300 flex items-center justify-center text-orange-700 text-4xl sm:text-5xl lg:text-6xl shadow-inner">
+                                <i class="fa-solid fa-plug-circle-bolt"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm font-bold text-orange-800 bg-white/80 px-3 sm:px-4 py-1.5 rounded-full shadow-sm border border-orange-200">
+                                Drop Power Tools Here
+                            </span>
+                        </div>
+
+                        <button onclick="submitCategoryChoice('power')" class="w-full mt-3 sm:mt-4 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white font-heading font-bold py-2.5 sm:py-3 px-4 rounded-xl shadow transition flex items-center justify-center space-x-2 text-sm sm:text-base">
+                        <i class="fa-solid fa-arrow-down-long"></i>
+                        <span>SORT AS POWER TOOL</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-result" class="hidden bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border-4 border-brand-600/30 overflow-hidden transition-all duration-300">
+            <div id="printable-certificate" class="p-3 sm:p-6 lg:p-8">
+                <!-- FORMAL CERTIFICATE FRAME -->
+                <div class="border-8 border-amber-500/80 rounded-3xl p-2 sm:p-3 bg-gradient-to-b from-amber-100/80 via-amber-50/50 to-emerald-100/60 shadow-2xl relative">
+                    <div class="border-2 border-dashed border-amber-600/70 rounded-2xl p-5 sm:p-8 lg:p-10 bg-gradient-to-b from-amber-50/90 via-white to-emerald-50/30 relative overflow-hidden text-center">
+                        
+                        <!-- CORNER ORNAMENTS -->
+                        <div class="absolute top-3 left-3 text-amber-600/50 text-2xl sm:text-3xl"><i class="fa-solid fa-seedling"></i></div>
+                        <div class="absolute top-3 right-3 text-amber-600/50 text-2xl sm:text-3xl rotate-90"><i class="fa-solid fa-seedling"></i></div>
+                        <div class="absolute bottom-3 left-3 text-amber-600/50 text-2xl sm:text-3xl -rotate-90"><i class="fa-solid fa-seedling"></i></div>
+                        <div class="absolute bottom-3 right-3 text-amber-600/50 text-2xl sm:text-3xl rotate-180"><i class="fa-solid fa-seedling"></i></div>
+
+                        <!-- WATERMARK SEEDLING -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                            <i class="fa-solid fa-award text-[280px] text-amber-800"></i>
+                        </div>
+
+                        <!-- CERTIFICATE HEADER -->
+                        <div class="relative z-10 space-y-2 mb-6">
+                            <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 text-brand-950 px-5 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow border border-amber-300">
+                                <i class="fa-solid fa-award"></i>
+                                <span>Official TLE Certificate of Achievement</span>
+                                <i class="fa-solid fa-award"></i>
+                            </div>
+
+                            <h2 class="font-heading text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-900 tracking-tight leading-tight uppercase drop-shadow-sm pt-2">
+                                Certificate of Mastery
+                            </h2>
+
+                            <p class="text-xs sm:text-sm font-extrabold text-amber-800 uppercase tracking-wider">
+                                Grade 7 Technology and Livelihood Education (TLE) • Agriculture & Gardening Tools
+                            </p>
+                        </div>
+
+                        <!-- RECIPIENT SECTION -->
+                        <div class="relative z-10 my-6 space-y-2">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest block">This certificate is proudly awarded to</span>
+                            
+                            <div class="inline-block border-b-4 border-amber-400 px-6 sm:px-12 py-1 max-w-full">
+                                <h3 id="res-student-name" class="font-heading text-3xl sm:text-5xl font-extrabold text-brand-900 leading-tight drop-shadow-sm">
+                                    Juan Dela Cruz
+                                </h3>
+                            </div>
+
+                            <div class="flex justify-center items-center space-x-2 pt-1 text-xs sm:text-sm font-bold text-brand-800">
+                                <span class="bg-brand-100 border border-brand-300 px-3 py-0.5 rounded-full" id="res-student-grade">Grade 7</span>
+                                <span class="text-amber-500">•</span>
+                                <span class="bg-amber-100 border border-amber-300 px-3 py-0.5 rounded-full" id="res-student-section">Section Sampaguita</span>
+                            </div>
+                        </div>
+
+                        <!-- ACHIEVEMENT STATEMENT & BADGE DISPLAY -->
+                        <div class="relative z-10 my-6 max-w-2xl mx-auto bg-white/90 p-5 rounded-2xl border-2 border-amber-300/80 shadow-md">
+                            <span class="text-xs font-semibold text-slate-600 block mb-3">
+                                For successfully completing the 15-Tool Classification Assessment and demonstrating mastery in distinguishing manual hand tools from motorized power tools.
+                            </span>
+
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 text-left bg-gradient-to-r from-amber-50/80 to-emerald-50/80 p-4 rounded-xl border border-amber-200">
+                                <div id="badge-icon-container" class="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-200 border-4 border-amber-500 flex items-center justify-center text-amber-900 text-4xl shadow-md shrink-0 animate-bounce-gentle">
+                                    <i id="badge-icon" class="fa-solid fa-crown"></i>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-extrabold text-amber-700 uppercase tracking-widest block">TITLE AWARDED</span>
+                                    <h4 id="badge-title" class="font-heading text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug">
+                                        Master Agri-Gardener
+                                    </h4>
+                                    <p id="badge-description" class="text-xs text-slate-600 font-medium leading-snug mt-1">
+                                        Outstanding performance! You demonstrated complete mastery in distinguishing between manual agricultural hand tools and motorized power tools.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OFFICIAL STATS & STAMPS ROW -->
+                        <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 my-6 max-w-3xl mx-auto text-xs">
+                            <div class="bg-white/80 p-3 rounded-xl border border-amber-200 text-center shadow-sm">
+                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">FINAL SCORE</span>
+                                <span id="res-score" class="font-heading text-xl font-extrabold text-brand-700">15 / 15</span>
+                            </div>
+                            <div class="bg-white/80 p-3 rounded-xl border border-amber-200 text-center shadow-sm">
+                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">ACCURACY</span>
+                                <span id="res-accuracy" class="font-heading text-xl font-extrabold text-emerald-600">100%</span>
+                            </div>
+                            <div class="bg-white/80 p-3 rounded-xl border border-amber-200 text-center shadow-sm">
+                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">CORRECT ITEMS</span>
+                                <span id="res-correct" class="font-heading text-xl font-extrabold text-emerald-600">15</span>
+                            </div>
+                            <div class="bg-white/80 p-3 rounded-xl border border-amber-200 text-center shadow-sm">
+                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">MISSED ITEMS</span>
+                                <span id="res-incorrect" class="font-heading text-xl font-extrabold text-rose-500">0</span>
+                            </div>
+                        </div>
+
+                        <!-- SIGNATURE & VERIFICATION ROW -->
+                        <div class="relative z-10 pt-4 border-t-2 border-dashed border-amber-300/80 grid grid-cols-2 gap-4 items-end text-xs max-w-2xl mx-auto">
+                            <div class="text-left space-y-1">
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">ISSUE DATE</span>
+                                <span id="res-date" class="font-bold text-slate-800 text-sm block">Sept 17, 2026</span>
+                                <span class="text-[10px] text-brand-700 font-bold block"><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> Grade 7 TLE Verified</span>
+                            </div>
+
+                            <div class="text-right space-y-1">
+                                <div class="font-heading font-bold text-slate-800 text-sm sm:text-base italic border-b border-slate-400 pb-0.5 inline-block px-4">
+                                    Agri-Sort TLE Evaluation
+                                </div>
+                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">OFFICIAL ASSESSMENT SEAL</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 15-TOOL REVIEW ITEM LOG -->
+                <div class="mt-6 border rounded-2xl overflow-hidden border-slate-200 bg-white shadow-sm">
+                    <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex justify-between items-center text-xs font-bold text-slate-700">
+                        <span class="flex items-center space-x-1.5">
+                            <i class="fa-solid fa-list-check text-brand-600"></i>
+                            <span>15-TOOL ASSESSMENT BREAKDOWN LOG</span>
+                        </span>
+                        <span>STATUS (+1 PT EACH)</span>
+                    </div>
+                    <div id="breakdown-list" class="max-h-56 overflow-y-auto divide-y divide-slate-100 text-xs">
+                        <!-- JS Rendered -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- CANVAS SUBMISSION NOTICE & REPLAY ACTION -->
+            <div class="bg-slate-100 p-4 sm:p-6 border-t border-slate-200 flex flex-wrap gap-4 justify-between items-center">
+                <button onclick="restartGame()" class="bg-slate-700 hover:bg-slate-800 text-white font-heading font-bold px-5 py-3 rounded-xl shadow transition flex items-center space-x-2 text-sm active:scale-95">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Play Again</span>
+                </button>
+
+                <div class="bg-amber-100 border-2 border-amber-400 text-amber-900 px-4 py-3 rounded-xl flex items-center space-x-3 text-xs sm:text-sm font-semibold max-w-md shadow-sm">
+                    <div class="w-9 h-9 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 text-lg shadow-sm">
+                        <i class="fa-solid fa-camera"></i>
+                    </div>
+                    <div>
+                        <span class="font-extrabold text-amber-950 block text-xs uppercase tracking-wider">Canvas Submission Reminder:</span>
+                        <span class="text-xs sm:text-sm">Please take a screenshot of this certificate and submit it in your <strong>Canvas Assignment</strong>!</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+    <div id="feedback-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div id="feedback-content" class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-4 transform scale-95 transition-transform duration-300 text-center space-y-4">
+            
+            <div id="modal-status-icon" class="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl shadow-md">
+                <i class="fa-solid fa-check"></i>
+            </div>
+
+            <h3 id="modal-status-title" class="font-heading text-2xl font-bold">Correct Answer!</h3>
+            
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left space-y-2">
+                <div class="flex items-center space-x-3">
+                    <div id="modal-tool-icon" class="w-14 h-14 rounded-xl overflow-hidden border border-slate-300 shrink-0"></div>
+                    <div>
+                        <span id="modal-tool-name" class="font-heading font-bold text-slate-900 text-base block">Tool Name</span>
+                        <span id="modal-tool-type" class="text-xs font-bold px-2 py-0.5 rounded-full inline-block">Type</span>
+                    </div>
+                </div>
+                <p id="modal-tool-fact" class="text-xs text-slate-600 leading-relaxed pt-2 border-t border-slate-200">
+                    Educational fact will appear here.
+                </p>
+            </div>
+
+            <button onclick="closeModalAndNext()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-heading font-bold py-3 px-6 rounded-xl shadow transition">
+                Continue to Next Tool <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const TOOLS_DATABASE = [
+            {
+                id: 'spade',
+                name: 'SPADE',
+                type: 'hand',
+                icon: 'fa-solid fa-hand',
+                image: 'https://www.diggers.com.au/cdn/shop/files/HDSP-Stainless-Steel-Spade_White-BG.jpg?v=1786892157&width=1400$0',
+                description: 'A tool with a flat, rectangular metal blade used for digging straight holes, cutting roots, and edging garden beds.',
+                agriFact: 'Spades feature sharp flat blades designed for precise slicing through soil and roots.'
+            },
+            {
+                id: 'rake',
+                name: 'RAKE',
+                type: 'hand',
+                icon: 'fa-solid fa-bars-staggered',
+                image: 'https://khmtools.com.ph/cdn/shop/files/rake.gif?v=1754362094$0',
+                description: 'A long-handled tool with metal tines used for leveling topsoil, gathering leaves, and clearing crop debris.',
+                agriFact: 'Raking prepares a fine, level seedbed free of weeds and stones before seeds are sown.'
+            },
+            {
+                id: 'hand-fork',
+                name: 'HAND FORK',
+                type: 'hand',
+                icon: 'fa-solid fa-utensils',
+                image: 'https://www.faithfulltools.com/images/xxlarge/FAIESSHF.jpg?v=1786892157&width=1400$0',
+                description: 'A small hand tool with sturdy prongs used for loosening soil, weeding, and aerating around growing plants.',
+                agriFact: 'Hand forks loosen compact soil around delicate seedlings without damaging fragile root structures.'
+            },
+            {
+                id: 'pruning-shear',
+                name: 'PRUNING SHEAR',
+                type: 'hand',
+                icon: 'fa-solid fa-scissors',
+                image: 'https://ronixtools.com/img/media/products/rh-3105/original-638123915720483657.webp?v=1786892157&width=1400$0',
+                description: 'Scissor-like hand shears designed to clean-cut small plant stems, unwanted branches, and harvest crops.',
+                agriFact: 'Pruning shears create clean cuts that encourage rapid plant healing and prevent disease entry points.'
+            },
+            {
+                id: 'hand-trowel',
+                name: 'HAND TROWEL',
+                type: 'hand',
+                icon: 'fa-solid fa-hand',
+                image: 'https://www.faithfulltools.com/images/extralarge/FAIESSHT.jpg?1625739612$0',
+                description: 'A small curved metal spade used for precision digging small planting holes and transplanting young seedlings.',
+                agriFact: 'Hand trowels protect delicate seedling roots during transplantation from seed trays into garden beds.'
+            },
+            {
+                id: 'hand-cultivator',
+                name: 'HAND CULTIVATOR',
+                type: 'hand',
+                icon: 'fa-solid fa-grip-lines',
+                image: 'https://www.faithfulltools.com/images/xxlarge/FAIESSHCUL.jpg?v=1786892157&width=1400$0',
+                description: 'A hand-held claw tool with curved tines used for breaking up soil crust and pulling shallow weeds.',
+                agriFact: 'Cultivating aerates topsoil so water, oxygen, and nutrients easily reach crop roots.'
+            },
+            {
+                id: 'shovel',
+                name: 'SHOVEL',
+                type: 'hand',
+                icon: 'fa-solid fa-person-digging',
+                image: 'https://polybound.co.uk/wp-content/uploads/Micro-Shovel-POLY-SHOV-Polybound.jpg?',
+                description: 'A scoop-shaped tool with a curved blade used for digging, lifting, and transferring loose soil, gravel, or manure.',
+                agriFact: 'The curved dish shape of a shovel provides high leverage for scooping and moving soil efficiently.'
+            },
+            {
+                id: 'wheelbarrow',
+                name: 'WHEELBARROW',
+                type: 'hand',
+                icon: 'fa-solid fa-cart-flatbed',
+                image: 'https://www.ultratechcement.com/content/ultratechcement/in/en/home/home-building-basics/wheelbarrow/_jcr_content/root/container/container/container/container/container/image_copy.coreimg.jpeg/1774349052637/wheelbarrow.jpeg?v=1786892157&width=1400$0',
+                description: 'A single-wheeled manual hand cart used for transporting heavy farm loads, compost, soil, and tools.',
+                agriFact: 'Wheelbarrows use lever physics to allow a single person to transport heavy loads easily across fields.'
+            },
+            {
+                id: 'light-hoe',
+                name: 'LIGHT HOE',
+                type: 'hand',
+                icon: 'fa-solid fa-person-digging',
+                image: 'https://s.alicdn.com/@sc04/kf/Hcc7f3e4c40bb4f5287b96b02b912ac96P.jpg_640x640.jpg$0',
+                description: 'A long-handled light digging tool used for breaking soil surface, shallow tilling, and weeding farm rows.',
+                agriFact: 'Light hoes slice weed roots just beneath the soil surface before weeds compete with crops.'
+            },
+            {
+                id: 'pick-mattock',
+                name: 'PICK MATTOCK',
+                type: 'hand',
+                icon: 'fa-solid fa-hammer',
+                image: 'https://ik.imagekit.io/tuc2020/wp-content/uploads/2021/01/HW0972-1.jpg?v=1786892157&width=1400$0',
+                description: 'A heavy hand digging tool with a pointed pick on one side and a mattock blade on the other for hard soil and roots.',
+                agriFact: 'Pick mattocks are essential for breaking up hard, stony, or clay soil during initial land clearing.'
+            },
+            {
+                id: 'chainsaw',
+                name: 'CHAINSAW',
+                type: 'power',
+                icon: 'fa-solid fa-gear',
+                image: 'https://yantratools.com/public/uploads/products/photos/73ad5b89eaf54212a7b049305701b017.webp?v=1786892157&width=1400$0',
+                description: 'A mechanical power saw driven by an engine or motor with teeth attached to a rotating chain for heavy cutting.',
+                agriFact: 'Motorized chainsaws enable rapid cutting of heavy tree limbs, trunks, and timber around agricultural plots.'
+            },
+            {
+                id: 'tiller',
+                name: 'POWER TILLER',
+                type: 'power',
+                icon: 'fa-solid fa-fan',
+                image: 'https://mantis.com/wp-content/uploads/2025/02/27972175_7566A_5.jpg?v=1786892157&width=1400$0',
+                description: 'A motorized cultivation machine with rotating tines that churn, mix, and thoroughly aerate agricultural soil.',
+                agriFact: 'Power tillers rapidly prepare farm fields by breaking dense soil into fine seedbed tilth.'
+            },
+            {
+                id: 'motorized-sprayer',
+                name: 'MOTORIZED SPRAYER',
+                type: 'power',
+                icon: 'fa-solid fa-spray-can-sparkles',
+                image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_VUsgIl8sUSX05CEGhmLUbh4OPeczQWnG8kjQm0ZArg&s=10$0',
+                description: 'An engine-powered liquid applicator used for high-pressure mist spraying of crop protection and liquid fertilizers.',
+                agriFact: 'Engine pumps deliver continuous pressure for uniform liquid spray coverage across farm crops.'
+            },
+            {
+                id: 'lawn-mower',
+                name: 'LAWN MOWER',
+                type: 'power',
+                icon: 'fa-solid fa-tractor',
+                image: 'https://i5.walmartimages.ca/asr/1e51802a-c637-469d-afdf-2fe87534f132.6eb4ba6d9e70edfc7dd177f7f34812ce.jpeg?odnHeight=2000&odnWidth=2000&odnBg=FFFFFF$0',
+                description: 'A motor or engine powered rotary cutter machine used for maintaining uniform grass length across agricultural grounds.',
+                agriFact: 'Motorized mowers trim grass rapidly, maintaining field borders and preventing weed growth.'
+            },
+            {
+                id: 'tractor',
+                name: 'TRACTOR',
+                type: 'power',
+                icon: 'fa-solid fa-truck-monster',
+                image: 'https://4.imimg.com/data4/HK/CL/ANDROID-12175174/product.jpeg?v=1786892157&width=1400$0',
+                description: 'A heavy-duty motorized farm vehicle used to pull plows, harrows, trailers, and heavy agricultural equipment.',
+                agriFact: 'Tractors drive large-scale mechanized farming, providing traction power for field cultivation.'
+            }
+        ];
+
+        function handleImageError(img, toolName) {
+            img.onerror = null;
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="100%" height="100%" fill="%2316a34a"/><text x="50%" y="50%" fill="%23ffffff" font-family="sans-serif" font-size="22" font-weight="bold" dominant-baseline="middle" text-anchor="middle">${toolName}</text></svg>`;
+            img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+        }
+
+        let gameState = {
+            studentName: '',
+            studentGrade: 'Grade 7',
+            studentSection: '',
+            currentIndex: 0,
+            score: 0,
+            streak: 0,
+            correctCount: 0,
+            incorrectCount: 0,
+            shuffledTools: [],
+            userAnswers: [],
+            soundEnabled: true
+        };
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        let isBgmPlaying = false;
+        let bgmNoteIndex = 0;
+        let bgmTimeout = null;
+
+        const BGM_MELODY = [
+            { note: 523.25, dur: 0.25 },
+            { note: 659.25, dur: 0.25 },
+            { note: 783.99, dur: 0.25 },
+            { note: 659.25, dur: 0.25 },
+            { note: 587.33, dur: 0.25 },
+            { note: 523.25, dur: 0.25 },
+            { note: 440.00, dur: 0.25 },
+            { note: 392.00, dur: 0.25 },
+            { note: 440.00, dur: 0.25 },
+            { note: 523.25, dur: 0.25 },
+            { note: 659.25, dur: 0.4 },
+            { note: 587.33, dur: 0.4 },
+            { note: 523.25, dur: 0.25 },
+            { note: 659.25, dur: 0.25 },
+            { note: 783.99, dur: 0.25 },
+            { note: 880.00, dur: 0.25 },
+            { note: 783.99, dur: 0.25 },
+            { note: 659.25, dur: 0.25 },
+            { note: 587.33, dur: 0.25 },
+            { note: 659.25, dur: 0.25 },
+            { note: 523.25, dur: 0.6 },
+            { note: 0,      dur: 0.2 }
+        ];
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function startBGM() {
+            if (!gameState.soundEnabled || isBgmPlaying) return;
+            initAudioContext();
+            isBgmPlaying = true;
+            scheduleBGMStep();
+        }
+
+        function stopBGM() {
+            isBgmPlaying = false;
+            if (bgmTimeout) {
+                clearTimeout(bgmTimeout);
+                bgmTimeout = null;
+            }
+        }
+
+        function scheduleBGMStep() {
+            if (!isBgmPlaying || !gameState.soundEnabled) return;
+
+            const item = BGM_MELODY[bgmNoteIndex];
+            bgmNoteIndex = (bgmNoteIndex + 1) % BGM_MELODY.length;
+
+            if (item.note > 0 && audioCtx) {
+                try {
+                    const now = audioCtx.currentTime;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(item.note, now);
+                    
+                    gain.gain.setValueAtTime(0.04, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + item.dur * 0.95);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(now);
+                    osc.stop(now + item.dur * 0.95);
+                } catch(e) {
+                    console.error("Audio error:", e);
+                }
+            }
+
+            const tempoMs = item.dur * 1000;
+            bgmTimeout = setTimeout(scheduleBGMStep, tempoMs);
+        }
+
+        function playSound(type) {
+            if (!gameState.soundEnabled) return;
+            try {
+                initAudioContext();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1);
+                    osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.exponentialRampToValueAtTime(110, now + 0.2);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'complete') {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const noteOsc = audioCtx.createOscillator();
+                        const noteGain = audioCtx.createGain();
+                        noteOsc.type = 'triangle';
+                        noteOsc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        noteGain.gain.setValueAtTime(0.25, now + idx * 0.1);
+                        noteGain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.3);
+                        noteOsc.connect(noteGain);
+                        noteOsc.connect(audioCtx.destination);
+                        noteOsc.start(now + idx * 0.1);
+                        noteOsc.stop(now + idx * 0.1 + 0.3);
+                    });
+                }
+            } catch (e) {
+                console.log('Audio playback unavailable');
+            }
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (gameState.soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-lg';
+                startBGM();
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-lg';
+                stopBGM();
+            }
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startGame(event) {
+            event.preventDefault();
+
+            const nameInput = document.getElementById('student-name').value.trim();
+            const gradeInput = document.getElementById('student-grade').value.trim();
+            const sectionInput = document.getElementById('student-section').value.trim();
+            const errorDiv = document.getElementById('form-error');
+
+            if (!nameInput || !sectionInput) {
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            errorDiv.classList.add('hidden');
+
+            gameState.studentName = nameInput;
+            gameState.studentGrade = gradeInput;
+            gameState.studentSection = sectionInput;
+            gameState.currentIndex = 0;
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.correctCount = 0;
+            gameState.incorrectCount = 0;
+            gameState.userAnswers = [];
+            gameState.shuffledTools = shuffleArray(TOOLS_DATABASE);
+
+            document.getElementById('game-display-name').textContent = gameState.studentName;
+            document.getElementById('game-display-class').textContent = `${gameState.studentGrade} - ${gameState.studentSection}`;
+
+            document.getElementById('screen-landing').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+
+            startBGM();
+            renderCurrentToolCard();
+            updateScoreboard();
+        }
+
+        function updateScoreboard() {
+            document.getElementById('score-display').textContent = `${gameState.score} / 15`;
+            document.getElementById('streak-display').textContent = `${gameState.streak} 🔥`;
+        }
+
+        function submitCategoryChoice(chosenType) {
+            if (gameState.currentIndex >= gameState.shuffledTools.length) return;
+
+            const currentTool = gameState.shuffledTools[gameState.currentIndex];
+            const isCorrect = (currentTool.type === chosenType);
+
+            if (isCorrect) {
+                gameState.score += 1;
+                gameState.streak += 1;
+                gameState.correctCount += 1;
+                playSound('correct');
+            } else {
+                gameState.streak = 0;
+                gameState.incorrectCount += 1;
+                playSound('wrong');
+            }
+
+            gameState.userAnswers.push({
+                tool: currentTool,
+                chosenType: chosenType,
+                isCorrect: isCorrect
+            });
+
+            updateScoreboard();
+            showFeedbackModal(currentTool, isCorrect, chosenType);
+        }
+
+        function handleDragStart(event) {
+            if (event.dataTransfer) {
+                event.dataTransfer.setData('text/plain', 'tool');
+                event.dataTransfer.effectAllowed = 'move';
+            }
+            if (event.target && event.target.classList) {
+                event.target.classList.add('dragging');
+            }
+        }
+
+        function handleDragEnd(event) {
+            if (event.target && event.target.classList) {
+                event.target.classList.remove('dragging');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            if (event.dataTransfer) {
+                event.dataTransfer.dropEffect = 'move';
+            }
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(event) {
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(event, category) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('drag-over');
+            submitCategoryChoice(category);
+        }
+
+        let isDragging = false;
+        let startX = 0, startY = 0;
+
+        function setupPointerDrag(cardElement) {
+            if (!cardElement) return;
+
+            cardElement.style.touchAction = 'none';
+
+            cardElement.addEventListener('pointerdown', (e) => {
+                if (e.target.closest('button')) return; // Allow button clicks
+                if (e.button !== undefined && e.button !== 0) return;
+                
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                cardElement.setPointerCapture(e.pointerId);
+                cardElement.style.transition = 'none';
+                cardElement.style.zIndex = '100';
+                cardElement.classList.add('shadow-2xl', 'scale-105');
+            });
+
+            cardElement.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+
+                cardElement.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${deltaX * 0.04}deg)`;
+
+                const handZone = document.getElementById('zone-hand');
+                const powerZone = document.getElementById('zone-power');
+
+                if (!handZone || !powerZone) return;
+
+                const handRect = handZone.getBoundingClientRect();
+                const powerRect = powerZone.getBoundingClientRect();
+
+                const px = e.clientX;
+                const py = e.clientY;
+
+                if (px >= handRect.left && px <= handRect.right && py >= handRect.top && py <= handRect.bottom) {
+                    handZone.classList.add('drag-over');
+                    powerZone.classList.remove('drag-over');
+                } else if (px >= powerRect.left && px <= powerRect.right && py >= powerRect.top && py <= powerRect.bottom) {
+                    powerZone.classList.add('drag-over');
+                    handZone.classList.remove('drag-over');
+                } else {
+                    handZone.classList.remove('drag-over');
+                    powerZone.classList.remove('drag-over');
+                }
+            });
+
+            const endDrag = (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+
+                try {
+                    cardElement.releasePointerCapture(e.pointerId);
+                } catch (err) {}
+
+                const handZone = document.getElementById('zone-hand');
+                const powerZone = document.getElementById('zone-power');
+                
+                if (handZone) handZone.classList.remove('drag-over');
+                if (powerZone) powerZone.classList.remove('drag-over');
+
+                const px = e.clientX;
+                const py = e.clientY;
+
+                let targetCategory = null;
+
+                if (handZone && powerZone) {
+                    const handRect = handZone.getBoundingClientRect();
+                    const powerRect = powerZone.getBoundingClientRect();
+
+                    if (px >= handRect.left && px <= handRect.right && py >= handRect.top && py <= handRect.bottom) {
+                        targetCategory = 'hand';
+                    } else if (px >= powerRect.left && px <= powerRect.right && py >= powerRect.top && py <= powerRect.bottom) {
+                        targetCategory = 'power';
+                    }
+                }
+
+                if (targetCategory) {
+                    cardElement.style.transform = '';
+                    cardElement.style.zIndex = '';
+                    cardElement.style.transition = '';
+                    submitCategoryChoice(targetCategory);
+                } else {
+                    cardElement.style.transition = 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                    cardElement.style.transform = 'translate(0px, 0px) rotate(0deg)';
+                    cardElement.style.zIndex = '';
+                    cardElement.classList.remove('scale-105');
+                    setTimeout(() => {
+                        if (cardElement) cardElement.style.transition = '';
+                    }, 300);
+                }
+            };
+
+            cardElement.addEventListener('pointerup', endDrag);
+            cardElement.addEventListener('pointercancel', endDrag);
+        }
+
+        function renderCurrentToolCard() {
+            const container = document.getElementById('card-container');
+            const total = gameState.shuffledTools.length;
+            const current = gameState.currentIndex;
+
+            if (current >= total) {
+                finishGame();
+                return;
+            }
+
+            const tool = gameState.shuffledTools[current];
+            const percent = ((current + 1) / total) * 100;
+            
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-text').textContent = `Tool ${current + 1} of ${total}`;
+
+            container.innerHTML = `
+                <div id="active-tool-card" 
+                     draggable="true" 
+                     ondragstart="handleDragStart(event)" 
+                     ondragend="handleDragEnd(event)"
+                     class="tool-card bg-white rounded-3xl p-4 sm:p-5 lg:p-6 border-4 border-amber-300 shadow-2xl flex flex-col items-center text-center relative hover:shadow-brand-500/20 transform hover:-translate-y-1 transition duration-200 cursor-grab active:cursor-grabbing select-none">
+                    
+                    <div class="absolute top-3 right-3 bg-amber-100 text-amber-800 text-[10px] sm:text-xs font-extrabold px-2.5 sm:px-3 py-1 rounded-full border border-amber-300 uppercase tracking-wider shadow-sm z-10 pointer-events-none">
+                        Drag or Tap
+                    </div>
+
+                    <div class="w-full h-44 sm:h-52 lg:h-60 rounded-2xl bg-white border-2 border-brand-200 flex items-center justify-center my-2 relative overflow-hidden shadow-inner group pointer-events-none">
+                        <img src="${tool.image}" alt="${tool.name}" 
+                             onerror="handleImageError(this, '${tool.name}')" 
+                             class="w-full h-full object-contain p-2 group-hover:scale-105 transition duration-300">
+                        <span class="absolute bottom-2 left-2 bg-slate-900/75 text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded backdrop-blur-sm border border-slate-700">
+                            <i class="${tool.icon} mr-1"></i> Tool #${current + 1}
+                        </span>
+                    </div>
+
+                    <h3 class="font-heading font-extrabold text-xl sm:text-2xl lg:text-3xl text-slate-800 leading-tight my-1 pointer-events-none">
+                        ${tool.name}
+                    </h3>
+
+                    <p class="text-xs sm:text-sm text-slate-600 bg-slate-50 p-2.5 sm:p-3 rounded-xl border border-slate-200 font-medium leading-relaxed mb-3 w-full pointer-events-none">
+                        "${tool.description}"
+                    </p>
+
+                    <div class="w-full grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 pointer-events-auto">
+                        <button onclick="submitCategoryChoice('hand')" class="bg-emerald-100 hover:bg-emerald-600 hover:text-white text-emerald-800 text-xs sm:text-sm font-heading font-bold py-2.5 sm:py-3 px-2 rounded-xl border border-emerald-300 transition flex items-center justify-center space-x-1 active:scale-95">
+                            <i class="fa-solid fa-hand"></i>
+                            <span>Hand Tool</span>
+                        </button>
+                        <button onclick="submitCategoryChoice('power')" class="bg-orange-100 hover:bg-orange-600 hover:text-white text-orange-800 text-xs sm:text-sm font-heading font-bold py-2.5 sm:py-3 px-2 rounded-xl border border-orange-300 transition flex items-center justify-center space-x-1 active:scale-95">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Power Tool</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Attach Pointer Drag listeners to the active card
+            const activeCard = document.getElementById('active-tool-card');
+            setupPointerDrag(activeCard);
+        }
+
+        function showFeedbackModal(tool, isCorrect, chosenType) {
+            const modal = document.getElementById('feedback-modal');
+            const content = document.getElementById('feedback-content');
+            const iconBox = document.getElementById('modal-status-icon');
+            const title = document.getElementById('modal-status-title');
+            const toolIcon = document.getElementById('modal-tool-icon');
+            const toolName = document.getElementById('modal-tool-name');
+            const toolType = document.getElementById('modal-tool-type');
+            const toolFact = document.getElementById('modal-tool-fact');
+
+            if (isCorrect) {
+                content.className = "bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-4 border-emerald-500 transform scale-100 transition-transform duration-300 text-center space-y-4";
+                iconBox.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl shadow-md bg-emerald-100 text-emerald-600 border-2 border-emerald-400";
+                iconBox.innerHTML = '<i class="fa-solid fa-check"></i>';
+                title.textContent = "Correct! (+1 Point)";
+                title.className = "font-heading text-2xl font-bold text-emerald-700";
+            } else {
+                content.className = "bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-4 border-rose-500 transform scale-100 transition-transform duration-300 text-center space-y-4";
+                iconBox.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl shadow-md bg-rose-100 text-rose-600 border-2 border-rose-400";
+                iconBox.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                title.textContent = "Incorrect Category!";
+                title.className = "font-heading text-2xl font-bold text-rose-700";
+            }
+
+            toolIcon.innerHTML = `<img src="${tool.image}" alt="${tool.name}" class="w-full h-full object-contain p-1 bg-white" onerror="handleImageError(this, '${tool.name}')">`;
+            toolName.textContent = tool.name;
+            
+            const isHand = (tool.type === 'hand');
+            toolType.textContent = isHand ? 'HAND TOOL' : 'POWER TOOL';
+            toolType.className = `text-xs font-bold px-2.5 py-0.5 rounded-full inline-block ${isHand ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-orange-100 text-orange-800 border border-orange-300'}`;
+
+            toolFact.innerHTML = `<strong>Agri-Learning Point:</strong> ${tool.agriFact}`;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeModalAndNext() {
+            const modal = document.getElementById('feedback-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                gameState.currentIndex++;
+                renderCurrentToolCard();
+            }, 250);
+        }
+
+        function finishGame() {
+            stopBGM();
+            playSound('complete');
+
+            if (window.confetti) {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+
+            document.getElementById('res-student-name').textContent = gameState.studentName;
+            document.getElementById('res-student-grade').textContent = gameState.studentGrade;
+            document.getElementById('res-student-section').textContent = gameState.studentSection;
+
+            const now = new Date();
+            document.getElementById('res-date').textContent = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            const totalTools = gameState.shuffledTools.length;
+            const accuracy = Math.round((gameState.correctCount / totalTools) * 100);
+
+            document.getElementById('res-score').textContent = `${gameState.score} / 15`;
+            document.getElementById('res-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('res-correct').textContent = gameState.correctCount;
+            document.getElementById('res-incorrect').textContent = gameState.incorrectCount;
+
+            let badgeTitle = '';
+            let badgeDesc = '';
+            let badgeIcon = '';
+            let badgeClass = '';
+
+            if (accuracy >= 90) {
+                badgeTitle = "Master Agri-Gardener";
+                badgeDesc = "Outstanding achievement! You possess complete mastery in identifying and classifying the 15 agricultural tools and power equipment from your module.";
+                badgeIcon = "fa-solid fa-crown";
+                badgeClass = "from-amber-400 to-yellow-200 border-amber-500 text-amber-900";
+            } else if (accuracy >= 75) {
+                badgeTitle = "Junior Agri-Expert";
+                badgeDesc = "Great job! You have a solid grasp of agricultural tool categories and understand their functional power sources.";
+                badgeIcon = "fa-solid fa-medal";
+                badgeClass = "from-emerald-400 to-teal-200 border-emerald-500 text-emerald-900";
+            } else if (accuracy >= 50) {
+                badgeTitle = "Garden Helper";
+                badgeDesc = "Good effort! You know basic garden tools well. Review power equipment functions to earn the Master Badge next time!";
+                badgeIcon = "fa-solid fa-seedling";
+                badgeClass = "from-blue-400 to-cyan-200 border-blue-500 text-blue-900";
+            } else {
+                badgeTitle = "Gardening Apprentice";
+                badgeDesc = "Keep practicing! Review the TLE module on hand tools (human powered) versus power tools (engine/electric powered) and try again.";
+                badgeIcon = "fa-solid fa-book-open";
+                badgeClass = "from-slate-300 to-slate-100 border-slate-400 text-slate-800";
+            }
+
+            document.getElementById('badge-title').textContent = badgeTitle;
+            document.getElementById('badge-description').textContent = badgeDesc;
+            document.getElementById('badge-icon').className = badgeIcon;
+            document.getElementById('badge-icon-container').className = `w-24 h-24 rounded-full bg-gradient-to-tr ${badgeClass} border-4 flex items-center justify-center text-5xl shadow-md mb-3 animate-bounce-gentle`;
+
+            const breakdownList = document.getElementById('breakdown-list');
+            breakdownList.innerHTML = '';
+
+            gameState.userAnswers.forEach((ans, idx) => {
+                const item = document.createElement('div');
+                item.className = "px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition";
+                
+                const isCorrect = ans.isCorrect;
+                const statusBadge = isCorrect
+                    ? `<span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-md text-[10px] flex items-center space-x-1"><i class="fa-solid fa-check"></i> <span>Correct (+1 pt)</span></span>`
+                    : `<span class="bg-rose-100 text-rose-800 font-bold px-2.5 py-1 rounded-md text-[10px] flex items-center space-x-1"><i class="fa-solid fa-xmark"></i> <span>Missed (0 pts)</span></span>`;
+
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-[10px]">${idx + 1}</span>
+                        <img src="${ans.tool.image}" alt="${ans.tool.name}" class="w-8 h-8 rounded-lg object-contain bg-white p-0.5 border border-slate-300 shrink-0" onerror="handleImageError(this, '${ans.tool.name}')">
+                        <div>
+                            <span class="font-bold text-slate-800 block">${ans.tool.name}</span>
+                            <span class="text-[10px] text-slate-500">Correct Category: <strong class="uppercase text-slate-700">${ans.tool.type === 'hand' ? 'HAND TOOL' : 'POWER TOOL'}</strong></span>
+                        </div>
+                    </div>
+                    <div>
+                        ${statusBadge}
+                    </div>
+                `;
+                breakdownList.appendChild(item);
+            });
+        }
+
+        function restartGame() {
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-landing').classList.remove('hidden');
+            document.getElementById('student-name').value = gameState.studentName;
+            document.getElementById('student-section').value = gameState.studentSection;
+            startBGM();
+        }
+    </script>
+</body>
+</html>
